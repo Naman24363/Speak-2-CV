@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}Speak2CV{% endblock %}</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar" role="banner">
+    <div class="container">
+      <h1 class="brand"><a href="/">Speak2CV</a></h1>
+      <nav aria-label="Primary">
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container" role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="container foot" role="contentinfo">
+    <p>Hack for Impact — Voice-assisted resume builder.</p>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

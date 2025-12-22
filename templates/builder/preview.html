@@ -1,0 +1,84 @@
+{% extends "builder/base.html" %}
+{% block title %}Preview{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="toolbar">
+    <a class="btn" href="{% url 'resume_edit' resume.id %}">Back to Edit</a>
+    <a class="btn" href="{% url 'export_pdf' resume.id %}">Export PDF</a>
+    <a class="btn" href="{% url 'export_docx' resume.id %}">Export DOCX</a>
+  </div>
+
+  <article class="preview" aria-label="Resume preview">
+    <h2>{{ resume.full_name|default:"Unnamed" }}</h2>
+
+    <p class="muted">
+      {% if resume.email %}{{ resume.email }}{% endif %}
+      {% if resume.phone %} • {{ resume.phone }}{% endif %}
+      {% if resume.location %} • {{ resume.location }}{% endif %}
+    </p>
+
+    <p class="muted">
+      {% if resume.linkedin %}<span>{{ resume.linkedin }}</span>{% endif %}
+      {% if resume.github %} • <span>{{ resume.github }}</span>{% endif %}
+    </p>
+
+    {% if resume.summary %}
+      <h3>Summary</h3>
+      <p>{{ resume.summary }}</p>
+    {% endif %}
+
+    {% if resume.education %}
+      <h3>Education</h3>
+      <ul>
+        {% for e in resume.education %}
+          <li>
+            <strong>{{ e.degree }}</strong> — {{ e.institution }}
+            {% if e.dates %} ({{ e.dates }}){% endif %}
+            {% if e.details %}<div class="muted">{{ e.details }}</div>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if resume.experience %}
+      <h3>Experience</h3>
+      {% for ex in resume.experience %}
+        <div class="block">
+          <strong>{{ ex.role }}</strong> — {{ ex.company }}
+          {% if ex.dates %} ({{ ex.dates }}){% endif %}
+          {% if ex.bullets %}
+            <ul>
+              {% for b in ex.bullets %}
+                <li>{{ b }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if resume.projects %}
+      <h3>Projects</h3>
+      {% for p in resume.projects %}
+        <div class="block">
+          <strong>{{ p.name }}</strong>
+          {% if p.tech %}<span class="muted"> — {{ p.tech }}</span>{% endif %}
+          {% if p.bullets %}
+            <ul>
+              {% for b in p.bullets %}
+                <li>{{ b }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if resume.skills %}
+      <h3>Skills</h3>
+      <p>{{ resume.skills|join:", " }}</p>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}

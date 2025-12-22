@@ -1,0 +1,287 @@
+{% extends "builder/base.html" %} {% load static %} {% block title %} Edit
+Resume {% endblock %} {% block content %}
+
+<style>
+  /* Active field highlight */
+  .voice-active {
+    outline: 2px solid var(--primary) !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%) !important;
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  /* Voice status pill */
+  #voiceStatus {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
+    border: 1px solid var(--primary-light);
+    display: inline-block;
+    min-height: 18px;
+    font-weight: 500;
+    color: var(--primary-dark);
+    transition: all 0.3s ease;
+  }
+
+  /* Mic listening glow on the details card */
+  .listening-glow {
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2),
+      0 10px 24px rgba(99, 102, 241, 0.15);
+    border: 2px solid var(--primary) !important;
+    animation: glow 1.5s ease-in-out infinite;
+  }
+
+  /* Subtle pulse animation */
+  @keyframes softPulse {
+    0% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.01);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.1);
+    }
+  }
+
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 10px 24px rgba(99, 102, 241, 0.15);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(99, 102, 241, 0.1), 0 10px 24px rgba(99, 102, 241, 0.25);
+    }
+  }
+
+  .pulse {
+    animation: softPulse 1.2s ease-in-out infinite;
+  }
+
+  /* Error styling */
+  .field-error {
+    border: 2px solid var(--danger) !important;
+    background-color: rgba(239, 68, 68, 0.08) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+  }
+
+  .error-message {
+    color: var(--danger);
+    font-size: 0.875rem;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* Case mode indicator styling */
+  #caseModeIndicator {
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+  }
+
+  #caseModeIndicator.case-mode-active {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(99, 102, 241, 0.15) 100%);
+    border-color: rgba(236, 72, 153, 0.4) !important;
+    color: var(--accent);
+    font-weight: 600;
+    box-shadow: 0 0 8px rgba(236, 72, 153, 0.15);
+  }
+
+  details.card.subtle {
+    transition: all 0.3s ease;
+  }
+
+  details.card.subtle[open] {
+    border-color: var(--primary-light);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12);
+  }
+
+  details summary {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.3s ease;
+  }
+
+  details summary:hover {
+    color: var(--primary);
+  }
+</style>
+
+<section class="card">
+  <h2 style="background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0 0 16px 0;">Edit: {{ resume.title }}</h2>
+
+  {% if errors %}
+  <div class="card subtle" style="border-left: 4px solid var(--danger); background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);">
+    <strong style="color: var(--danger);">⚠️ Validation Errors:</strong>
+    <ul style="margin: 8px 0 0 20px; padding: 0;">
+      {% for field, message in errors.items %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="toolbar" role="region" aria-label="Actions" style="border-radius: 8px; padding: 12px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%); border: 1px solid rgba(99, 102, 241, 0.1); margin-bottom: 16px;">
+    <a class="btn" href="{% url 'resume_preview' resume.id %}">👁️ Preview</a>
+    <a class="btn" href="{% url 'export_pdf' resume.id %}">📄 Export PDF</a>
+    <a class="btn" href="{% url 'export_docx' resume.id %}">📝 Export DOCX</a>
+  </div>
+
+  <details class="card subtle">
+    <summary style="font-size: 1.1em;"><strong>🎤 Voice input</strong> <span style="font-size: 0.9em; opacity: 0.7;">(works in Chrome/Edge)</span></summary>
+    <p class="muted">
+      Click a text field, then press Start and speak. It will insert text into the selected field.
+    </p>
+    <div class="row" style="align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px; background: rgba(99, 102, 241, 0.05); border-radius: 8px;">
+      <button class="btn primary" type="button" id="voiceMode">🎙️ Voice Mode</button>
+      <button class="btn" type="button" id="startVoice">▶️ Start</button>
+      <button class="btn" type="button" id="stopVoice">⏹️ Stop</button>
+
+      <label class="muted" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+        <input type="checkbox" id="narratorToggle" checked style="cursor: pointer;" />
+        🔊 Narrator
+      </label>
+
+      <span class="muted" id="voiceStatus" aria-live="polite"></span>
+    </div>
+    <div id="liveTranscript" class="muted"
+      style="margin-top:10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; opacity:0.9; padding: 10px; background: rgba(0, 0, 0, 0.02); border-left: 3px solid var(--primary); border-radius: 4px;">
+    </div>
+  </details>
+
+  <!-- Case Mode Indicator -->
+  <div style="margin-top: 12px; padding: 10px; border-radius: 8px; background: rgba(236, 72, 153, 0.05); border: 1px solid rgba(236, 72, 153, 0.2); display: flex; align-items: center; gap: 12px;">
+    <span class="muted" style="font-weight: 500;">Typing mode:</span>
+    <span id="caseModeIndicator" style="padding: 6px 12px; border-radius: 20px; background: rgba(99, 102, 241, 0.1); border: 1px solid transparent; font-weight: 500; min-height: 18px; font-size: 0.95em;">
+      (Original)
+    </span>
+  </div>
+
+  <form method="post" class="form" id="resumeForm">
+    {% csrf_token %}
+
+    <h3>Basics</h3>
+
+    <p>
+      <label for="title"><strong>Resume title</strong> *</label><br />
+      <input id="title" name="title" class="input {% if errors.title %}field-error{% endif %}"
+        value="{{ resume.title }}" />
+      {% if errors.title %}
+    <div class="error-message">{{ errors.title }}</div>{% endif %}
+    </p>
+
+    <div class="grid2">
+      <p>
+        <label for="full_name"><strong>Full name</strong> *</label><br />
+        <input id="full_name" name="full_name" class="input {% if errors.full_name %}field-error{% endif %}"
+          value="{{ resume.full_name }}" />
+        {% if errors.full_name %}
+      <div class="error-message">{{ errors.full_name }}</div>{% endif %}
+      </p>
+
+      <p>
+        <label for="email"><strong>Email</strong> *</label><br />
+        <input id="email" name="email" class="input {% if errors.email %}field-error{% endif %}"
+          value="{{ resume.email }}" />
+        {% if errors.email %}
+      <div class="error-message">{{ errors.email }}</div>{% endif %}
+      </p>
+    </div>
+
+    <div class="grid2">
+      <p>
+        <label for="phone"><strong>Phone</strong> *</label><br />
+        <input id="phone" name="phone" class="input {% if errors.phone %}field-error{% endif %}"
+          value="{{ resume.phone }}" />
+        {% if errors.phone %}
+      <div class="error-message">{{ errors.phone }}</div>{% endif %}
+      </p>
+
+      <p>
+        <label for="location"><strong>Location</strong></label><br />
+        <input id="location" name="location" class="input" value="{{ resume.location }}" />
+      </p>
+    </div>
+
+    <div class="grid2">
+      <p>
+        <label for="linkedin"><strong>LinkedIn</strong></label><br />
+        <input id="linkedin" name="linkedin" class="input" value="{{ resume.linkedin }}" />
+      </p>
+
+      <p>
+        <label for="github"><strong>GitHub</strong></label><br />
+        <input id="github" name="github" class="input" value="{{ resume.github }}" />
+      </p>
+    </div>
+
+    <p>
+      <label for="summary"><strong>Summary</strong></label><br />
+      <textarea id="summary" name="summary" rows="4" class="input">
+{{ resume.summary }}</textarea>
+    </p>
+
+    <h3>Education</h3>
+    <div id="educationList"></div>
+    <button class="btn" type="button" id="addEducation">+ Add Education</button>
+
+    <h3>Experience</h3>
+    <div id="experienceList"></div>
+    <button class="btn" type="button" id="addExperience">
+      + Add Experience
+    </button>
+
+    <h3>Projects</h3>
+    <div id="projectsList"></div>
+    <button class="btn" type="button" id="addProject">+ Add Project</button>
+
+    <h3>Skills</h3>
+    <p class="muted">Enter one skill per line.</p>
+    <textarea id="skillsText" rows="6" class="mono input" aria-label="Skills"></textarea>
+
+    <!-- Hidden JSON fields -->
+    <input type="hidden" name="education_json" id="education_json" />
+    <input type="hidden" name="experience_json" id="experience_json" />
+    <input type="hidden" name="projects_json" id="projects_json" />
+    <input type="hidden" name="skills_json" id="skills_json" />
+
+    <div class="actions">
+      <button class="btn primary" type="submit" name="action" value="save">
+        Save
+      </button>
+      <button class="btn" type="submit" name="action" value="preview">
+        Save & Preview
+      </button>
+    </div>
+  </form>
+</section>
+
+<!-- JSON blobs (so VS Code doesn't complain + JS stays valid) -->
+<script id="education-data" type="application/json">
+  {{ education_json|safe }}
+</script>
+<script id="experience-data" type="application/json">
+  {{ experience_json|safe }}
+</script>
+<script id="projects-data" type="application/json">
+  {{ projects_json|safe }}
+</script>
+<script id="skills-data" type="application/json">
+  {{ skills_json|safe }}
+</script>
+
+{% endblock %} {% block scripts %}
+
+<script type="module" src="{% static 'js/resume-edit.js' %}"></script>
+
+{% endblock %}

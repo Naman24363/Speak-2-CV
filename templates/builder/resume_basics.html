@@ -1,0 +1,28 @@
+{% extends "builder/base.html" %}
+{% block title %}Create Resume{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h2>Create Resume (Basics)</h2>
+
+    <form method="post" class="form" aria-describedby="hint">
+      {% csrf_token %}
+
+      <p id="hint" class="muted">
+        Enter title + name. You can fill everything else (including voice input) on the next screen.
+      </p>
+
+      <p>
+        <label for="title"><strong>Resume title</strong></label><br />
+        <input id="title" name="title" class="input" placeholder="e.g., Naman Chug — Resume" required />
+      </p>
+
+      <p>
+        <label for="full_name"><strong>Full name</strong></label><br />
+        <input id="full_name" name="full_name" class="input" placeholder="e.g., Naman Chug" />
+      </p>
+
+      <button class="btn primary" type="submit">Create</button>
+    </form>
+  </section>
+{% endblock %}

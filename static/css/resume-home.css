@@ -1,0 +1,111 @@
+/**
+ * Resume Home - Resume List Styles
+ */
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.resume-item {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  animation: slideInUp 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.resume-item:nth-child(1) { animation-delay: 0.05s; }
+.resume-item:nth-child(2) { animation-delay: 0.1s; }
+.resume-item:nth-child(3) { animation-delay: 0.15s; }
+.resume-item:nth-child(4) { animation-delay: 0.2s; }
+.resume-item:nth-child(5) { animation-delay: 0.25s; }
+
+.resume-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  background: #fff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.resume-label:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.resume-label:active {
+  transform: translateX(2px);
+}
+
+.resume-label a {
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resume-label strong {
+  color: #1f2937;
+  transition: color 0.3s ease;
+}
+
+.resume-label:hover strong {
+  color: var(--primary);
+}
+
+.resume-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+  transition: all 0.2s ease;
+}
+
+.resume-checkbox:hover {
+  transform: scale(1.15);
+}
+
+.resume-checkbox:checked {
+  filter: brightness(1.1);
+}
+
+#resume-list {
+  padding-left: 0;
+  margin: 0;
+}
+
+.muted {
+  color: rgba(0, 0, 0, 0.6);
+  transition: color 0.3s ease;
+}
+
+.resume-label:hover .muted {
+  color: rgba(99, 102, 241, 0.7);
+}
