@@ -235,7 +235,7 @@ document.getElementById("resumeForm").addEventListener("submit", () => {
   if (recognition) {
     try {
       recognition.stop();
-    } catch {}
+    } catch { }
   }
   setListeningUI(false);
   setLive("");
@@ -261,6 +261,7 @@ renderProjects();
 
 let recognition = null;
 let isVoiceModeOn = false;
+let isRecognitionRunning = false;
 let handlersAttached = false;
 
 // While narrator is speaking and we intentionally paused recognition
@@ -289,14 +290,14 @@ function setListeningUI(isListening) {
 
 function updateCaseModeIndicator() {
   if (!caseModeIndicator) return;
-  
+
   const modeTexts = {
     original: "",
     caps: "🔤 ALL CAPS",
     camelCase: "🐪 Camel Case",
     lowercase: "🔡 Lower Case"
   };
-  
+
   caseModeIndicator.textContent = modeTexts[caseMode] || "";
   caseModeIndicator.className = caseMode !== "original" ? "case-mode-active" : "";
 }
@@ -318,20 +319,20 @@ function toCamelCase(text) {
   // Split by spaces and special characters
   const words = text.split(/[\s\-_]+/).filter(w => w.length > 0);
   if (words.length === 0) return text;
-  
+
   // First word is lowercase, rest are title case
-  const camel = words[0].toLowerCase() + 
+  const camel = words[0].toLowerCase() +
     words.slice(1)
       .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
       .join("");
-  
+
   return camel;
 }
 
 function setCaseMode(newMode) {
   const validModes = ["original", "caps", "camelCase", "lowercase"];
   if (!validModes.includes(newMode)) return;
-  
+
   caseMode = newMode;
   updateCaseModeIndicator();
 }
@@ -379,6 +380,7 @@ const narrator = {
   lastKey: "",
   isSpeaking: false,
   speakTimeout: null,
+  wasRecognitionActive: false,
 
   speak(text, onEnd) {
     if (!this.enabled) {
@@ -393,26 +395,47 @@ const narrator = {
     try {
       window.speechSynthesis.cancel();
 
+      // Pause voice recognition while narrator is speaking
+      this.wasRecognitionActive = isVoiceModeOn && recognition && isRecognitionRunning;
+      if (this.wasRecognitionActive) {
+        try {
+          recognition.stop();
+        } catch { }
+      }
+
       this.isSpeaking = true;
       const u = new SpeechSynthesisUtterance(text);
       u.rate = 1.0;
       u.pitch = 1.0;
       u.lang = "en-IN";
 
+      const resumeRecognition = () => {
+        // Resume voice recognition after narrator finishes
+        if (this.wasRecognitionActive && recognition && isVoiceModeOn) {
+          try {
+            recognition.start();
+          } catch { }
+        }
+        this.wasRecognitionActive = false;
+      };
+
       u.onend = () => {
         this.isSpeaking = false;
         if (this.speakTimeout) clearTimeout(this.speakTimeout);
+        resumeRecognition();
         if (onEnd) onEnd();
       };
 
       u.onerror = () => {
         this.isSpeaking = false;
         if (this.speakTimeout) clearTimeout(this.speakTimeout);
+        resumeRecognition();
         if (onEnd) onEnd();
       };
 
       this.speakTimeout = setTimeout(() => {
         this.isSpeaking = false;
+        resumeRecognition();
         if (onEnd) onEnd();
       }, 5000);
 
@@ -420,6 +443,12 @@ const narrator = {
     } catch {
       this.isSpeaking = false;
       if (this.speakTimeout) clearTimeout(this.speakTimeout);
+      if (this.wasRecognitionActive && recognition && isVoiceModeOn) {
+        try {
+          recognition.start();
+        } catch { }
+      }
+      this.wasRecognitionActive = false;
       if (onEnd) onEnd();
     }
   },
@@ -446,14 +475,14 @@ function safeStartRecognition() {
   if (!recognition) return;
   try {
     recognition.start();
-  } catch {}
+  } catch { }
 }
 
 function safeStopRecognition() {
   if (!recognition) return;
   try {
     recognition.stop();
-  } catch {}
+  } catch { }
 }
 
 /**
@@ -596,6 +625,92 @@ function deleteLastSentence(field) {
   field.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
+// ===================== Navigate to Specific Entry =====================
+
+/**
+ * Navigate to the Nth entry of a section (education, experience, project)
+ * Returns object with { success: boolean, message: string }
+ */
+function navigateToEntry(section, entryNumber) {
+  let dataArray;
+  let sectionName;
+
+  if (section === "education") {
+    dataArray = EDUCATION;
+    sectionName = "Education";
+  } else if (section === "experience") {
+    dataArray = EXPERIENCE;
+    sectionName = "Experience";
+  } else if (section === "project" || section === "projects") {
+    dataArray = PROJECTS;
+    sectionName = "Project";
+  } else {
+    return { success: false, message: "Unknown section." };
+  }
+
+  if (!Array.isArray(dataArray) || dataArray.length === 0) {
+    return {
+      success: false,
+      message: `There are no ${section} entries.`
+    };
+  }
+
+  // entryNumber should be 1-based
+  if (entryNumber < 1 || entryNumber > dataArray.length) {
+    const plural = dataArray.length === 1 ? "is only 1" : `are only ${dataArray.length}`;
+    return {
+      success: false,
+      message: `There ${plural} ${section} ${dataArray.length === 1 ? "entry" : "entries"}.`
+    };
+  }
+
+  // Find the section list container (educationList, experienceList, or projectsList)
+  let listContainer;
+  if (section === "education") {
+    listContainer = document.getElementById("educationList");
+  } else if (section === "experience") {
+    listContainer = document.getElementById("experienceList");
+  } else if (section === "project" || section === "projects") {
+    listContainer = document.getElementById("projectsList");
+  }
+
+  if (!listContainer) {
+    return { success: false, message: `Could not find ${section} section.` };
+  }
+
+  // Find all cards in this container
+  const cards = Array.from(listContainer.querySelectorAll(".card.subtle"));
+
+  if (cards.length < entryNumber) {
+    const plural = cards.length === 1 ? "is only 1" : `are only ${cards.length}`;
+    return {
+      success: false,
+      message: `There ${plural} ${section} ${cards.length === 1 ? "entry" : "entries"}.`
+    };
+  }
+
+  // Get the Nth card (0-based index)
+  const targetCard = cards[entryNumber - 1];
+
+  // Find the first focusable input/textarea in that card
+  const inputs = Array.from(targetCard.querySelectorAll("input, textarea")).filter(
+    (el) => !el.disabled && el.type !== "hidden"
+  );
+
+  if (inputs.length > 0) {
+    inputs[0].focus();
+    return {
+      success: true,
+      message: `Going to ${sectionName} entry ${entryNumber}.`
+    };
+  }
+
+  return {
+    success: false,
+    message: `Could not find fields in ${section} entry ${entryNumber}.`
+  };
+}
+
 function handleVoiceCommand(raw, field) {
   const t = (raw || "").trim().toLowerCase();
 
@@ -618,24 +733,140 @@ function handleVoiceCommand(raw, field) {
     return true;
   }
 
+  // Navigate to specific entry number (e.g., "go to first education", "go to second experience")
+  const numberWordMap = {
+    'first': 1, 'second': 2, 'third': 3, 'fourth': 4, 'fifth': 5,
+    'sixth': 6, 'seventh': 7, 'eighth': 8, 'ninth': 9, 'tenth': 10
+  };
+
+  const entryMatch = t.match(/^go to\s+(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\s+(education|experience|project|projects)$/);
+  if (entryMatch) {
+    const entryNumber = numberWordMap[entryMatch[1]];
+    const section = entryMatch[2];
+    const result = navigateToEntry(section, entryNumber);
+    status.textContent = result.message;
+    speakWhileListening(result.message);
+    return true;
+  }
+
+  // NEW: numeric ordinal support (e.g., "go to 3rd education", "go to 3 education")
+  const entryMatchNum = t.match(
+    /^go to\s+(\d+)(?:st|nd|rd|th)?\s+(education|experience|project|projects)$/
+  );
+  if (entryMatchNum) {
+    const entryNumber = parseInt(entryMatchNum[1], 10);
+    const section = entryMatchNum[2];
+    const result = navigateToEntry(section, entryNumber);
+    status.textContent = result.message;
+    speakWhileListening(result.message);
+    return true;
+  }
+
+
   // Add entry commands
   if (t === "add education") {
     document.getElementById("addEducation")?.click();
     status.textContent = "Added education entry.";
+    setTimeout(() => {
+      focusFirstFieldInSection("education");
+    }, 50);
     return true;
   }
   if (t === "add experience") {
     document.getElementById("addExperience")?.click();
     status.textContent = "Added experience entry.";
+    setTimeout(() => {
+      focusFirstFieldInSection("experience");
+    }, 50);
     return true;
   }
   if (t === "add project" || t === "add projects") {
     document.getElementById("addProject")?.click();
     status.textContent = "Added project entry.";
+    setTimeout(() => {
+      focusFirstFieldInSection("projects");
+    }, 50);
     return true;
   }
 
-  // Remove items
+  // Remove items - by specific number (e.g., "remove second education", "remove first project")
+  const numberWordMap2 = {
+    'first': 1, 'second': 2, 'third': 3, 'fourth': 4, 'fifth': 5,
+    'sixth': 6, 'seventh': 7, 'eighth': 8, 'ninth': 9, 'tenth': 10
+  };
+
+  const removeByNumberMatch = t.match(
+    /^(remove|delete)\s+(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth)\s+(education|experience|project|projects)$/
+  );
+  if (removeByNumberMatch) {
+    const entryNumber = numberWordMap2[removeByNumberMatch[2]];
+    const section = removeByNumberMatch[3];
+    let dataArray, renderFn, sectionName;
+
+    if (section === "education") {
+      dataArray = EDUCATION;
+      renderFn = renderEducation;
+      sectionName = "education";
+    } else if (section === "experience") {
+      dataArray = EXPERIENCE;
+      renderFn = renderExperience;
+      sectionName = "experience";
+    } else if (section === "project" || section === "projects") {
+      dataArray = PROJECTS;
+      renderFn = renderProjects;
+      sectionName = "project";
+    }
+
+    if (entryNumber < 1 || entryNumber > dataArray.length) {
+      status.textContent = `Cannot remove ${removeByNumberMatch[2]} ${section}. Only ${dataArray.length} ${section} ${dataArray.length === 1 ? "entry" : "entries"} available.`;
+      speakWhileListening(`There is no ${removeByNumberMatch[2]} ${section}.`);
+      return true;
+    }
+
+    dataArray.splice(entryNumber - 1, 1);
+    renderFn();
+    status.textContent = `Removed ${removeByNumberMatch[2]} ${section} entry.`;
+    speakWhileListening(`Removed ${removeByNumberMatch[2]} ${section}.`);
+    return true;
+  }
+
+  // Remove items - by numeric ordinal (e.g., "remove 3rd education", "remove 2 project")
+  const removeByNumericMatch = t.match(
+    /^(remove|delete)\s+(\d+)(?:st|nd|rd|th)?\s+(education|experience|project|projects)$/
+  );
+  if (removeByNumericMatch) {
+    const entryNumber = parseInt(removeByNumericMatch[2], 10);
+    const section = removeByNumericMatch[3];
+    let dataArray, renderFn, sectionName;
+
+    if (section === "education") {
+      dataArray = EDUCATION;
+      renderFn = renderEducation;
+      sectionName = "education";
+    } else if (section === "experience") {
+      dataArray = EXPERIENCE;
+      renderFn = renderExperience;
+      sectionName = "experience";
+    } else if (section === "project" || section === "projects") {
+      dataArray = PROJECTS;
+      renderFn = renderProjects;
+      sectionName = "project";
+    }
+
+    if (entryNumber < 1 || entryNumber > dataArray.length) {
+      status.textContent = `Cannot remove entry ${entryNumber}. Only ${dataArray.length} ${section} ${dataArray.length === 1 ? "entry" : "entries"} available.`;
+      speakWhileListening(`There is no entry ${entryNumber} in ${section}.`);
+      return true;
+    }
+
+    dataArray.splice(entryNumber - 1, 1);
+    renderFn();
+    status.textContent = `Removed ${section} entry ${entryNumber}.`;
+    speakWhileListening(`Removed ${section} number ${entryNumber}.`);
+    return true;
+  }
+
+  // Remove items - last entry (legacy)
   if (t === "remove last education" || t === "delete last education" || t === "remove education") {
     const ok = removeLastItem(EDUCATION, renderEducation);
     status.textContent = ok ? "Removed last education entry." : "No education entries to remove.";
@@ -746,14 +977,14 @@ function handleVoiceCommand(raw, field) {
   }
 
   // Document actions
-  if (t === "save the resume" || t === "save resume") {
+  if (t === "save the resume" || t === "save resume" || t === "save" || t === "save this resume") {
     saveResume();
     status.textContent = "Saving resume...";
     speakWhileListening("Saving your resume.");
     return true;
   }
 
-  if (t === "preview the resume" || t === "preview resume") {
+  if (t === "preview the resume" || t === "preview resume" || t === "preview" || t === "preview this resume") {
     previewResume();
     status.textContent = "Opening preview...";
     speakWhileListening("Opening preview.");
@@ -764,7 +995,11 @@ function handleVoiceCommand(raw, field) {
     t === "export the resume as pdf" ||
     t === "export resume as pdf" ||
     t === "download the resume as pdf" ||
-    t === "download resume as pdf"
+    t === "download resume as pdf" || t === "export the resume as pdf file" ||
+    t === "export resume as pdf file" ||
+    t === "download the resume as pdf file" ||
+    t === "download resume as pdf file"|| t === "export pdf" ||
+    t === "download pdf" || t == "export this resume as pdf" || t == "download this resume as pdf" || t == "export this resume as pdf file" || t == "download this resume as pdf file" || t == "export pdf file" || t == "download pdf file"
   ) {
     exportResumeAsPdf();
     status.textContent = "Exporting as PDF...";
@@ -780,7 +1015,12 @@ function handleVoiceCommand(raw, field) {
     t === "download the resume as doc" ||
     t === "download resume as doc" ||
     t === "download the resume as docx" ||
-    t === "download resume as docx"
+    t === "download resume as docx" || t === "export this resume as doc" ||
+    t === "download this resume as doc" ||
+    t === "export this resume as docx" || t === "download this resume as docx" || t === "export doc" ||
+    t === "download doc" ||
+    t === "export docx" ||
+    t === "download docx"
   ) {
     exportResumeAsDocx();
     status.textContent = "Exporting as DOCX...";
@@ -814,6 +1054,43 @@ function handleVoiceCommand(raw, field) {
     setCaseMode("original");
     status.textContent = "Original mode - all typing modes off";
     speakWhileListening("All typing modes have been turned off. You are back to normal mode.");
+    return true;
+  }
+
+  // Read current field
+  if (t === "read this" || t === "read this field") {
+    if (!field) {
+      status.textContent = "No field selected.";
+      speakWhileListening("Please click on a text field first.");
+      return true;
+    }
+
+    const fieldValue = field.value || "";
+    if (!fieldValue.trim()) {
+      status.textContent = "Field is empty.";
+      speakWhileListening("This field is empty.");
+      return true;
+    }
+
+    const narrationLabel = field.getAttribute("data-narrator") || "Field";
+
+    // Check if this is a phone field - read digit by digit
+    const isPhoneField = field.id === "phone" ||
+      (field.type === "tel") ||
+      (field.name && field.name.toLowerCase().includes("phone")) ||
+      (field.placeholder && field.placeholder.toLowerCase().includes("phone"));
+
+    if (isPhoneField) {
+      // Read phone number digit by digit
+      const digits = fieldValue.replace(/\D/g, ""); // Extract only digits
+      const digitReadout = digits.split("").join(", ");
+      status.textContent = `Reading phone: ${fieldValue}`;
+      speakWhileListening(`${narrationLabel}: ${digitReadout}`);
+    } else {
+      status.textContent = `Reading: ${fieldValue}`;
+      speakWhileListening(`${narrationLabel}: ${fieldValue}`);
+    }
+
     return true;
   }
 
@@ -907,21 +1184,22 @@ function attachRecognitionHandlersOnce() {
   let lastFinalAt = 0;
 
   recognition.onstart = () => {
+    isRecognitionRunning = true;
     status.textContent = "Listening";
     setListeningUI(true);
   };
 
   recognition.onend = () => {
+    isRecognitionRunning = false;
     setListeningUI(false);
 
-    // If we intentionally stopped recognition for narrator speech,
-    // do NOT auto-restart here. We'll restart after speech ends.
     if (ttsPausing) return;
 
     if (isVoiceModeOn) {
       setTimeout(() => safeStartRecognition(), 200);
     }
   };
+
 
   recognition.onerror = (event) => {
     status.textContent = event?.error ? `Voice error: ${event.error}` : "Voice error";
@@ -930,6 +1208,9 @@ function attachRecognitionHandlersOnce() {
 
   recognition.onresult = (event) => {
     if (!event?.results?.length) return;
+
+    // Skip processing if narrator is currently speaking
+    if (narrator.isSpeaking) return;
 
     const lastResult = event.results[event.results.length - 1];
     if (!lastResult?.length) return;
@@ -1020,9 +1301,10 @@ async function startVoice() {
   isVoiceModeOn = true;
 
   await ensureAudioContext();
-  speakWithDelay("Voice mode turning ON");
+  speakWhileListening("Voice mode turning ON");
+  // IMPORTANT: do NOT start recognition here.
+  // speakWhileListening() will restart it after the narrator finishes.
 
-  safeStartRecognition();
 }
 
 function stopVoice() {
