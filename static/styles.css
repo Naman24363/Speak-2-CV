@@ -35,7 +35,7 @@ a {
 /* Layout
    ========================================================================== */
 .container {
-  max-width: 980px;
+  max-width: 85%;
   margin: 0 auto;
   padding: 16px;
 }

@@ -6,6 +6,42 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}" />
 
+<div class="page-wrapper">
+  <!-- Left Banner -->
+  <aside class="side-banner left-banner">
+    <div class="banner-content">
+      <h3 class="banner-title">💡 Resume Tips</h3>
+      
+      <div class="banner-card">
+        <h4>Keep It Concise</h4>
+        <p>Aim for 1-2 pages max. Recruiters spend only 6-7 seconds on initial screening.</p>
+      </div>
+      
+      <div class="banner-card">
+        <h4>Use Action Verbs</h4>
+        <p>Start bullet points with powerful verbs: Led, Developed, Achieved, Improved.</p>
+      </div>
+      
+      <div class="banner-card">
+        <h4>Quantify Results</h4>
+        <p>Numbers speak louder: "Increased sales by 30%" beats "Improved sales."</p>
+      </div>
+      
+      <div class="banner-card">
+        <h4>Tailor Each Resume</h4>
+        <p>Customize your resume for each job application. Highlight relevant skills.</p>
+      </div>
+      
+      <div class="banner-card">
+        <h4>Proofread Carefully</h4>
+        <p>Typos can cost you the job. Review multiple times before sending.</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
 <!-- Hero Section -->
 <section class="hero-section">
   <div class="hero-content">
@@ -26,9 +62,14 @@
           <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
         </linearGradient>
       </defs>
-      <circle cx="100" cy="100" r="80" fill="url(#grad1)" opacity="0.1"/>
-      <circle cx="100" cy="100" r="60" fill="url(#grad1)" opacity="0.15"/>
-      <path d="M 100 40 L 115 85 L 160 85 L 128 115 L 143 160 L 100 130 L 57 160 L 72 115 L 40 85 L 85 85 Z" fill="url(#grad1)"/>
+      <!-- Background circles -->
+      <circle cx="100" cy="100" r="85" fill="url(#grad1)" opacity="0.08"/>
+      <circle cx="100" cy="100" r="65" fill="url(#grad1)" opacity="0.12"/>
+      <!-- Microphone icon -->
+      <rect x="85" y="60" width="30" height="50" rx="15" fill="url(#grad1)" opacity="0.9"/>
+      <rect x="95" y="110" width="10" height="25" fill="url(#grad1)" opacity="0.9"/>
+      <path d="M 75 135 Q 75 145 100 145 Q 125 145 125 135" stroke="url(#grad1)" stroke-width="3" fill="none" opacity="0.9"/>
+      <circle cx="100" cy="145" r="3" fill="url(#grad1)" opacity="0.9"/>
     </svg>
   </div>
 </section>
@@ -128,5 +169,47 @@
 </section>
 
 <script src="{% static 'js/resume-home.js' %}"></script>
+
+  </div>
+  <!-- End Main Content -->
+
+  <!-- Right Banner -->
+  <aside class="side-banner right-banner">
+    <div class="banner-content">
+      <h3 class="banner-title">🚀 Why Voice?</h3>
+      
+      <div class="banner-card highlight">
+        <div class="stat-number">3x</div>
+        <p>Faster than typing - speak naturally and let AI format for you</p>
+      </div>
+      
+      <div class="banner-card">
+        <h4>Natural Flow</h4>
+        <p>Speaking helps you remember details you might forget while typing. Express yourself freely!</p>
+      </div>
+      
+      <div class="banner-card highlight">
+        <div class="stat-number">10min</div>
+        <p>Average time to create a complete resume with voice input</p>
+      </div>
+      
+      <div class="banner-card">
+        <h4>AI-Powered</h4>
+        <p>Our AI transforms your spoken words into professional, polished resume content.</p>
+      </div>
+      
+      <div class="banner-card">
+        <h4>Edit Anytime</h4>
+        <p>Voice is just the start. Refine and perfect your resume with our easy editing tools.</p>
+      </div>
+      
+      <div class="banner-card motivational">
+        <p>"Speak your story, we'll write your success."</p>
+      </div>
+    </div>
+  </aside>
+
+</div>
+<!-- End Page Wrapper -->
 
 {% endblock %}
