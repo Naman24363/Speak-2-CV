@@ -1,13 +1,41 @@
 {% extends "builder/base.html" %}
 {% load static %}
 
-{% block title %}Speak2CV{% endblock %}
+{% block title %}Speak2CV - Voice-Assisted Resume Builder{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}" />
 
-<section class="card">
-  <h2 class="page-title-gradient">Resumes</h2>
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-content">
+    <h2 class="hero-title">Build Your Resume with Your Voice</h2>
+    <p class="hero-subtitle">Create professional resumes effortlessly. Just speak your experience, and let AI do the rest.</p>
+    <div class="hero-features">
+      <div class="feature-badge">🎤 Voice-Powered</div>
+      <div class="feature-badge">⚡ Fast & Easy</div>
+      <div class="feature-badge">📄 Export Ready</div>
+    </div>
+    <a class="btn primary btn-lg" href="{% url 'resume_create' %}">✨ Create Your First Resume</a>
+  </div>
+  <div class="hero-image">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <circle cx="100" cy="100" r="80" fill="url(#grad1)" opacity="0.1"/>
+      <circle cx="100" cy="100" r="60" fill="url(#grad1)" opacity="0.15"/>
+      <path d="M 100 40 L 115 85 L 160 85 L 128 115 L 143 160 L 100 130 L 57 160 L 72 115 L 40 85 L 85 85 Z" fill="url(#grad1)"/>
+    </svg>
+  </div>
+</section>
+
+<!-- Resumes Section -->
+<section class="card resumes-section">
+  <h2 class="page-title-gradient">Your Resumes</h2>
 
   {% if resumes %}
     <div id="resume-container">
@@ -16,17 +44,25 @@
           <li class="resume-item">
             <label class="resume-label">
               <input type="checkbox" class="resume-checkbox" data-resume-id="{{ r.id }}" />
-              <a href="{% url 'resume_edit' r.id %}">
-                <strong>{{ r.title }}</strong>
-                <span class="muted">— {{ r.full_name|default:"Unnamed" }}</span>
-              </a>
+              <div class="resume-info">
+                <a href="{% url 'resume_edit' r.id %}">
+                  <strong>{{ r.title }}</strong>
+                  <span class="muted">— {{ r.full_name|default:"Unnamed" }}</span>
+                </a>
+              </div>
+              <div class="resume-actions">
+                <a href="{% url 'resume_edit' r.id %}" class="btn-mini">Edit</a>
+              </div>
             </label>
           </li>
         {% endfor %}
       </ul>
     </div>
   {% else %}
-    <p>No resumes yet. Create your first one.</p>
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p class="empty-text">No resumes yet. Get started by creating your first one!</p>
+    </div>
   {% endif %}
 
   <div class="actions">
@@ -34,6 +70,60 @@
     {% if resumes %}
       <button id="delete-btn" class="btn danger hidden-btn">🗑️ Delete Selected</button>
     {% endif %}
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works">
+  <h3 class="section-title">How It Works</h3>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-icon">🗣️</div>
+      <h4>Speak</h4>
+      <p>Tell us about your experience using natural language</p>
+    </div>
+    <div class="step-card">
+      <div class="step-icon">✨</div>
+      <h4>AI Transforms</h4>
+      <p>Our AI processes and formats your words professionally</p>
+    </div>
+    <div class="step-card">
+      <div class="step-icon">📥</div>
+      <h4>Edit & Refine</h4>
+      <p>Polish your resume with easy editing tools</p>
+    </div>
+    <div class="step-card">
+      <div class="step-icon">📤</div>
+      <h4>Export</h4>
+      <p>Download as PDF or Word document instantly</p>
+    </div>
+  </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="benefits-section">
+  <h3 class="section-title">Why Choose Speak2CV?</h3>
+  <div class="benefits-grid">
+    <div class="benefit-item">
+      <div class="benefit-icon">⏱️</div>
+      <h4>Save Time</h4>
+      <p>Build a complete resume in minutes, not hours</p>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">🎯</div>
+      <h4>Stay Focused</h4>
+      <p>Just talk naturally - we handle the formatting</p>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">🔒</div>
+      <h4>Your Data</h4>
+      <p>All your resumes are stored safely and securely</p>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">🎨</div>
+      <h4>Professional Look</h4>
+      <p>Get job-ready resumes without design skills</p>
+    </div>
   </div>
 </section>
 

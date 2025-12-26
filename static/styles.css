@@ -154,6 +154,16 @@ a {
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
+.btn.danger:active {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.btn-lg {
+  padding: 12px 24px;
+  font-size: 1.05em;
+  font-weight: 600;
+}
+
 /* Forms & Inputs
    ========================================================================== */
 .form p {
