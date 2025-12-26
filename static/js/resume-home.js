@@ -24,7 +24,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateDeleteButton() {
     const anyChecked = Array.from(checkboxes).some((cb) => cb.checked);
-    if (deleteBtn) deleteBtn.style.display = anyChecked ? "inline-block" : "none";
+    if (deleteBtn) {
+      if (anyChecked) {
+        deleteBtn.classList.remove("hidden-btn");
+      } else {
+        deleteBtn.classList.add("hidden-btn");
+      }
+    }
   }
 
   checkboxes.forEach((checkbox) => {

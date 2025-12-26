@@ -2,7 +2,8 @@
  * Resume Edit - Voice System Styles
  */
 
-/* Animations */
+/* ===================== Animations ===================== */
+
 @keyframes pulseGlow {
   0%, 100% {
     box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
@@ -39,7 +40,123 @@
   }
 }
 
-/* Active field highlight */
+/* ===================== Page Title ===================== */
+
+.page-title-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 16px 0;
+}
+
+/* ===================== Validation Errors Box ===================== */
+
+.validation-errors-box {
+  border-left: 4px solid var(--danger);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+}
+
+.validation-errors-title {
+  color: var(--danger);
+}
+
+.validation-errors-list {
+  margin: 8px 0 0 20px;
+  padding: 0;
+}
+
+/* ===================== Toolbar ===================== */
+
+.edit-toolbar {
+  border-radius: 8px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  margin-bottom: 16px;
+}
+
+/* ===================== Voice Input Section ===================== */
+
+.voice-details-summary {
+  font-size: 1.1em;
+}
+
+.voice-details-hint {
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+
+.voice-controls-row {
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 8px;
+}
+
+.narrator-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.narrator-checkbox {
+  cursor: pointer;
+}
+
+#liveTranscript {
+  margin-top: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  opacity: 0.9;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.02);
+  border-left: 3px solid var(--primary);
+  border-radius: 4px;
+}
+
+/* ===================== Case Mode Indicator ===================== */
+
+.case-mode-wrapper {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(236, 72, 153, 0.05);
+  border: 1px solid rgba(236, 72, 153, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.case-mode-label {
+  font-weight: 500;
+}
+
+#caseModeIndicator {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid transparent;
+  font-weight: 500;
+  min-height: 18px;
+  font-size: 0.95em;
+  transition: all 0.3s ease;
+  color: var(--text-secondary);
+}
+
+#caseModeIndicator.case-mode-active {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(99, 102, 241, 0.15) 100%);
+  border-color: rgba(236, 72, 153, 0.4);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.15);
+}
+
+/* ===================== Voice Active Field ===================== */
+
 .voice-active {
   outline: 2px solid var(--primary) !important;
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
@@ -48,12 +165,13 @@
   animation: pulseGlow 2s ease-in-out infinite;
 }
 
-/* Voice status pill */
+/* ===================== Voice Status Pill ===================== */
+
 #voiceStatus {
   padding: 8px 14px;
   border-radius: 999px;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  border: 1px solid var(--primary-light);
   display: inline-block;
   min-height: 18px;
   font-weight: 500;
@@ -65,7 +183,8 @@
   animation: softPulse 1.5s ease-in-out infinite;
 }
 
-/* Mic listening glow on the details card */
+/* ===================== Listening Glow ===================== */
+
 .listening-glow {
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2),
     0 10px 24px rgba(99, 102, 241, 0.15);
@@ -73,12 +192,33 @@
   animation: glow 1.5s ease-in-out infinite;
 }
 
-/* Subtle pulse animation */
 .pulse {
   animation: softPulse 1.2s ease-in-out infinite;
 }
 
-/* Error styling */
+/* ===================== Details Card ===================== */
+
+details.card.subtle {
+  transition: all 0.3s ease;
+}
+
+details.card.subtle[open] {
+  border-color: var(--primary-light);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12);
+}
+
+details summary {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.3s ease;
+}
+
+details summary:hover {
+  color: var(--primary);
+}
+
+/* ===================== Error Styling ===================== */
+
 .field-error {
   border: 2px solid var(--danger) !important;
   background-color: rgba(239, 68, 68, 0.08) !important;
@@ -92,7 +232,8 @@
   font-weight: 500;
 }
 
-/* Field transitions */
+/* ===================== Field Transitions ===================== */
+
 input:not(.voice-active):not(.field-error),
 textarea:not(.voice-active):not(.field-error) {
   transition: all 0.3s ease;
@@ -109,4 +250,5 @@ input:focus:not(.field-error),
 textarea:focus:not(.field-error) {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.02) 0%, rgba(236, 72, 153, 0.02) 100%);}
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.02) 0%, rgba(236, 72, 153, 0.02) 100%);
+}

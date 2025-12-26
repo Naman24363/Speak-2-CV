@@ -1,0 +1,40 @@
+/**
+ * Preview Page - Resume Preview Styles
+ */
+
+/* Preview page currently uses base styles from styles.css.
+   Add preview-specific styles here as needed. */
+
+.preview {
+  padding: 16px 0;
+}
+
+.preview h2 {
+  margin-bottom: 8px;
+  color: var(--primary-dark);
+}
+
+.preview h3 {
+  margin-top: 24px;
+  margin-bottom: 8px;
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: 4px;
+}
+
+.preview ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.preview li {
+  margin: 4px 0;
+}
+
+.preview .block {
+  margin: 16px 0;
+  padding: 12px;
+  background: rgba(99, 102, 241, 0.02);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary-light);
+}

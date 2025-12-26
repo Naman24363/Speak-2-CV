@@ -1,7 +1,11 @@
 {% extends "builder/base.html" %}
+{% load static %}
+
 {% block title %}Preview{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/preview.css' %}" />
+
 <section class="card">
   <div class="toolbar">
     <a class="btn" href="{% url 'resume_edit' resume.id %}">Back to Edit</a>

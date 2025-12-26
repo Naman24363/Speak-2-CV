@@ -1,0 +1,14 @@
+/**
+ * Resume Basics (Create) Page - Styles
+ */
+
+/* Resume basics page currently uses base styles from styles.css.
+   Add page-specific styles here as needed. */
+
+.form {
+  max-width: 600px;
+}
+
+.form .input {
+  margin-top: 8px;
+}
